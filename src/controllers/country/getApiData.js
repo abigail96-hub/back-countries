@@ -1,28 +1,29 @@
 const { Country } = require('../../db');
 const axios = require('axios');
 
+const getApiData = async () => {
+  try {
+    const res = await axios.get('https://restcountries.com/v3.1/all');
+    const countries = res.data
+      .sort((a, b) => b.population - a.population)
+      .slice(0, 200)
+      .map((country) => ({
+        id: country.cca3,
+        name: country.name.common,
+        img: country.flags.png,
+        continents: country.continents[0],
+        capital: country.capital ? country.capital[0] : 'Undefined Capital',
+        subregion: country.subregion ? country.subregion : 'Undefine Subregion',
+        area: country.area,
+        population: country.population,
+        maps: country.maps.googleMaps,
+        photos: [],
+      }));
 
-const API_URL = `https://restcountries.com/v3/all`;
-
-const getApiData = () => {
-  axios
-    .get(API_URL)
-    .then((res) =>
-      Country.bulkCreate(
-        res.data.map((country) => ({
-          id: country.id,
-          name: country.name,
-          img: country.flag,
-          continents: country.continents,
-          capital: country.capital,
-          subregion: country.subregion,
-          area: country.area,
-          population: country.population,
-          maps: country.maps,
-        }))
-      )
-    )
-    .catch((err) => console.log(err));
+    await Country.bulkCreate(countries);
+  } catch (err) {
+    console.log(`Error obteniendo países de la API: ${err}`);
+  }
 };
 
 module.exports = { getApiData };
