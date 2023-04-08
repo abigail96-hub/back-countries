@@ -6,6 +6,11 @@ const {
   DB_USER, DB_PASSWORD, DB_HOST, DB_PORT, DB_DATABASE
 } = process.env;
 
+// Agregar esta línea
+const pg = require('pg');
+
+pg.defaults.ssl = process.env.NODE_ENV === "production";
+
 const sequelize = new Sequelize(`postgresql://${DB_USER}:${DB_PASSWORD}@${DB_HOST}:${DB_PORT}/${DB_DATABASE}`,
  {
   logging: false, // set to console.log to see the raw SQL queries
